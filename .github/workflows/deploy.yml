@@ -9,13 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Copy tools to deploy folder
+      - name: Copy tools to deploy/
         run: |
           mkdir -p deploy
           cp -r tools/* deploy/
-
-      - name: Deploy to GitHub Pages
+      - name: Publish to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

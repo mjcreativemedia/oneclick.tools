@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Text Diff Tool</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; max-width: 1000px; margin: auto; }
+    textarea { width: 48%; height: 150px; font-family: monospace; margin: 0 1%; vertical-align: top; }
+    button { margin: 1rem 0; padding: 0.5rem 1rem; font-size: 1rem; }
+    .diff-view { display: flex; gap: 1rem; }
+    .diff-box { width: 50%; background: #f7f7f7; padding: 1rem; white-space: pre-wrap; font-family: monospace; }
+    del { background-color: #ffd7d7; text-decoration: line-through; }
+    ins { background-color: #d2f8d2; text-decoration: none; }
+    .label { font-weight: bold; margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Text Diff Tool</h1>
+  <div>
+    <textarea id="left" placeholder="Original text..."></textarea>
+    <textarea id="right" placeholder="Modified text..."></textarea>
+  </div>
+  <button id="compare">Compare</button>
+
+  <div class="diff-view">
+    <div class="diff-box"><div class="label">Removals</div><div id="output-left"></div></div>
+    <div class="diff-box"><div class="label">Additions</div><div id="output-right"></div></div>
+  </div>
+
+  <script>
+    function escapeHTML(str) {
+      return str.replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/diff-match-patch/index.js'\;
+    script.onload = () => {
+      document.getElementById('compare').onclick = () => {
+        const left = document.getElementById('left').value;
+        const right = document.getElementById('right').value;
+
+        const dmp = new diff_match_patch();
+        const diffs = dmp.diff_main(left, right);
+        dmp.diff_cleanupSemantic(diffs);
+
+        let leftHTML = '', rightHTML = '';
+        for (const [op, text] of diffs) {
+          if (op === -1) { leftHTML += '<del>' + escapeHTML(text) + '</del>'; }
+          else if (op === 1) { rightHTML += '<ins>' + escapeHTML(text) + '</ins>'; }
+          else {
+            leftHTML += escapeHTML(text);
+            rightHTML += escapeHTML(text);
+          }
+        }
+
+        document.getElementById('output-left').innerHTML = leftHTML;
+        document.getElementById('output-right').innerHTML = rightHTML;
+      };
+    };
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
